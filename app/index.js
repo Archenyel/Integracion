@@ -7,7 +7,7 @@ app.get('/', (req, res) => {
     message: "Despliegue Blue-Green Exitoso",
     host: process.env.HOSTNAME,
     color: process.env.COLOR || "unknown",
-    version: "1.0.0" // Cambia esto para probar que se actualiza
+    version: "1.0.0"
   });
 });
 
