@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const port = 3000;
-
 app.get('/', (req, res) => {
   res.json({
     message: "Despliegue Blue-Green Exitoso",
@@ -10,7 +9,6 @@ app.get('/', (req, res) => {
     version: "2.0.0"
   });
 });
-
 app.listen(port, () => {
   console.log(`App en puerto ${port}`);
 });

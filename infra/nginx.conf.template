@@ -4,10 +4,9 @@ http {
     upstream node_app {
         server 127.0.0.1:{{PORT}};
     }
-
     server {
         listen 80;
-        
+
         location / {
             proxy_pass http://node_app;
             proxy_set_header Host $host;

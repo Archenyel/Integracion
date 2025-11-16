@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Definir variables
 IMAGE_NAME="${IMAGE_NAME:-ghcr.io/archenyel/integracion:latest}"
 # Convertir a minúsculas para evitar errores de Docker
@@ -37,17 +36,13 @@ docker run -d --name $NEW_COLOR \
   -e COLOR=$NEW_COLOR \
   $IMAGE_NAME
 
-
 echo "Esperando health check..."
 sleep 5
-
 
 sed "s/{{PORT}}/$NEW_PORT/g" $TEMPLATE_CONF > temp_nginx.conf
 mv temp_nginx.conf $NGINX_CONF
 
-
 nginx -s reload
-
 
 if [ ! -z "$CURRENT_COLOR" ]; then
   docker stop $OLD_COLOR
