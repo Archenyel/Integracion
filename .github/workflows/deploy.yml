@@ -1,0 +1,72 @@
+name: CI/CD Blue-Green
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase image name
+        run: echo "IMAGE_LOWER=${IMAGE_NAME,,}" >> $GITHUB_ENV
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./app
+          push: true
+          tags: ghcr.io/${{ env.IMAGE_LOWER }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 1. Copiar los scripts de tu carpeta 'infra' al VPS
+      - name: Copy scripts to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "infra/*"
+          target: "/root/despliegue"
+          strip_components: 1 # Para que no cree la carpeta 'infra' dentro de despliegue
+
+      # 2. Ejecutar el script en el VPS
+      - name: Execute Deploy Script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Dar permisos de ejecución por si se perdieron
+            chmod +x /root/despliegue/deploy.sh
+            
+            # Pasar el nombre de la imagen correcta
+            export IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
+            
+            # Ejecutar
+            /root/despliegue/deploy.sh
