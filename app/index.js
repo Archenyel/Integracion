@@ -5,7 +5,7 @@ app.get('/', (req, res) => {
   res.json({
     message: "Despliegue Blue-Green Exitoso",
     host: process.env.HOSTNAME,
-    color: process.env.COLOR || "unknown",
+    color: process.env.NEW_COLOR || "unknown",
     version: "3.0.0"
   });
 });
