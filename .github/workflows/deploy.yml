@@ -64,6 +64,8 @@ jobs:
           script: |
             # Dar permisos de ejecución por si se perdieron
             chmod +x /root/despliegue/deploy.sh
+
+            export NEW_COLOR=GREEN
             
             # Pasar el nombre de la imagen correcta
             export IMAGE_NAME=ghcr.io/${{ github.repository }}:latest
